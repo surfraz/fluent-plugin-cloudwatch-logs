@@ -16,6 +16,7 @@ module Fluent
 
     config_param :aws_key_id, :string, :default => nil, :secret => true
     config_param :aws_sec_key, :string, :default => nil, :secret => true
+    config_param :aws_use_iam_instance_role, :bool, default: false
     config_param :aws_use_sts, :bool, default: false
     config_param :aws_sts_role_arn, :string, default: nil
     config_param :aws_sts_session_name, :string, default: 'fluentd'
@@ -54,6 +55,9 @@ module Fluent
           role_arn: @aws_sts_role_arn,
           role_session_name: @aws_sts_session_name
         )
+      elsif @aws_use_iam_instance_role
+        Aws.config[:region] = options[:region]
+        options[:credentials] = Aws::InstanceProfileCredentials.new()
       else
         options[:credentials] = Aws::Credentials.new(@aws_key_id, @aws_sec_key) if @aws_key_id && @aws_sec_key
       end
