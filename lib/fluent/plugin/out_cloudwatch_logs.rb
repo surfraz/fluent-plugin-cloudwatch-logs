@@ -68,6 +68,9 @@ module Fluent
       super
 
       options = {}
+      options[:region] = @region if @region
+      options[:http_proxy] = @http_proxy if @http_proxy
+
       if @aws_use_sts
         Aws.config[:region] = options[:region]
         options[:credentials] = Aws::AssumeRoleCredentials.new(
@@ -77,8 +80,7 @@ module Fluent
       else
         options[:credentials] = Aws::Credentials.new(@aws_key_id, @aws_sec_key) if @aws_key_id && @aws_sec_key
       end
-      options[:region] = @region if @region
-      options[:http_proxy] = @http_proxy if @http_proxy
+
       @logs ||= Aws::CloudWatchLogs::Client.new(options)
       @sequence_tokens = {}
       @store_next_sequence_token_mutex = Mutex.new
